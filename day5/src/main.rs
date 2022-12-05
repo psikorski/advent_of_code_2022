@@ -63,6 +63,17 @@ impl Towers {
             self.towers[(mv.dest - 1) as usize].heap.push(moved);
         }
     }
+    fn move_blocks_part2(&mut self, mv: Move) {
+        let mut count = mv.count as usize;
+        while count > 0 {
+            let len = self.towers[(mv.source - 1) as usize].heap.len();
+            println!("len {len}, count {count}");
+            let moved = self.towers[(mv.source - 1) as usize].heap.remove( len - count);
+            self.towers[(mv.dest - 1) as usize].heap.push(moved);
+            count -=1;
+        }
+
+    }
     fn print_last(&mut self) -> String {
         let mut res = String::new();
         for t in self.towers.iter_mut() {
@@ -122,7 +133,7 @@ fn solve(input: &str) -> String {
             let mut mv = Move{count: 0,source: 0, dest:0};
             mv.from_line(line);
             println!("count {}, source {}, dest {}", mv.count, mv.source, mv.dest);
-            towers.move_blocks(mv);
+            towers.move_blocks_part2(mv);
             towers.print();
         }
     }
