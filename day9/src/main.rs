@@ -52,7 +52,7 @@ fn move_pos_p(p: &mut i32, dist: i32) {
     }
 }
 
-fn solve(input: &str) -> usize {
+fn solve_1(input: &str) -> usize {
     let mut h = Position::def();
     let mut t = Position::def();
 
@@ -62,7 +62,7 @@ fn solve(input: &str) -> usize {
     let lines = input.lines();
     for line in lines {
         let (letter, number) = parse_line(line);
-        println!("Letter: {letter}, number {number}");
+        //println!("Letter: {letter}, number {number}");
         for _i in 0..number {
             move_pos(&mut h, letter);
             let dist_x = dist(h.x, t.x);
@@ -80,15 +80,59 @@ fn solve(input: &str) -> usize {
                     move_pos_p(&mut t.y, dist_y);
                 }
             }
-            println!("H ({},{}; T ({},{})", h.x, h.y, t.x, t.y);
+            //println!("H ({},{}; T ({},{})", h.x, h.y, t.x, t.y);
             visitted_by_t.insert(t);
         }
     }
     visitted_by_t.len()
 }
 
+
+fn solve_2(input: &str) -> usize {
+    let mut h = Position::def();
+    let mut knots: Vec<Position> = vec![h, h, h, h, h, h, h, h, h]; //9
+
+    let mut visitted_by_t: HashSet<Position> = HashSet::new();
+    visitted_by_t.insert(h);
+    let lines = input.lines();
+    for line in lines {
+        let (letter, number) = parse_line(line);
+        //println!("Letter: {letter}, number {number}");
+        for _i in 0..number {
+            move_pos(&mut h, letter);
+            let mut next = &h;
+            for k in knots.iter_mut() {
+                let current = k;
+
+                let dist_x = dist(next.x, current.x);
+                let dist_y = dist(next.y, current.y);
+            
+                if dist_x != 0 && dist_y != 0 && dist_x.abs()+dist_y.abs() > 2 {
+                    move_pos_p(&mut current.x, dist_x);
+                    move_pos_p(&mut current.y, dist_y);
+                }
+                else {
+                    if dist_x.abs() > 1 {
+                        move_pos_p(&mut current.x, dist_x);
+                    }
+                    if dist_y.abs() > 1 {
+                        move_pos_p(&mut current.y, dist_y);
+                    }
+                }
+                //println!("Next{} ({},{}; Current ({},{})", i, next.x, next.y, current.x, current.y);
+                next = current;
+            }
+            visitted_by_t.insert(knots[8]);
+        }
+        //println!("H ({},{}); 9 ({},{})", h.x, h.y, knots[8].x, knots[8].y);
+    }
+    visitted_by_t.len()
+}
+
 fn main() {
     let input = include_str!("../input.txt");
-    let result = solve(input);
-    println!("result = {result}");
+    let result1 = solve_1(input);
+    println!("result1 = {result1}");
+    let result2 = solve_2(input);
+    println!("result2 = {result2}");
 }
