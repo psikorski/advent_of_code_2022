@@ -2,17 +2,17 @@ use std::collections::VecDeque;
 
 use sscanf::sscanf;
 
-type Operation = fn(i32, i32) -> i32;
+type Operation = fn(u64, u64) -> u64;
 
 struct Monkey{
-    pub id: i32,
-    pub items: VecDeque<i32>,
+    pub id: u64,
+    pub items: VecDeque<u64>,
     pub operation: Option<Operation>,
-    pub operation_number: i32,
-    pub divisible_by: i32,
-    pub divisible_true: i32,
-    pub divisible_false: i32,
-    pub items_visitted: i32,
+    pub operation_number: u64,
+    pub divisible_by: u64,
+    pub divisible_true: u64,
+    pub divisible_false: u64,
+    pub items_visitted: u64,
 }
 
 impl Monkey {
@@ -40,7 +40,7 @@ Monkey 0:
 */
 fn read_monkey(lines: &Vec<&str>, id: usize) -> Monkey {
     let mut monkey = Monkey::def();
-    let parsed = sscanf!(lines[id], "Monkey {}:", i32);
+    let parsed = sscanf!(lines[id], "Monkey {}:", u64);
     monkey.id = parsed.unwrap();
     println!("Monkey number {}", monkey.id);
     let starting_items = lines[id+1]; //   Starting items: 79, 98
@@ -91,29 +91,32 @@ fn read_monkey(lines: &Vec<&str>, id: usize) -> Monkey {
             println!("ERROR");
         }
     }    
-    monkey.divisible_by = sscanf!(lines[id+3], "  Test: divisible by {}", i32).unwrap();
-    monkey.divisible_true = sscanf!(lines[id+4], "    If true: throw to monkey {}", i32).unwrap();
-    monkey.divisible_false = sscanf!(lines[id+5], "    If false: throw to monkey {}", i32).unwrap();
+    monkey.divisible_by = sscanf!(lines[id+3], "  Test: divisible by {}", u64).unwrap();
+    monkey.divisible_true = sscanf!(lines[id+4], "    If true: throw to monkey {}", u64).unwrap();
+    monkey.divisible_false = sscanf!(lines[id+5], "    If false: throw to monkey {}", u64).unwrap();
     println!("divisible_by {}, divisible_true {}, divisible_false {}", monkey.divisible_by, monkey.divisible_true, monkey.divisible_false);
     monkey
 }
 
 
-fn solve_1(input: &str) -> i32 {
+fn solve_1(input: &str) -> u64 {
     let lines_vec: Vec<&str> = input.lines().collect();
     let mut monkeys: Vec<Monkey> = Vec::new();
     let mut id = 0;
+    let mut lcm = 1;
     while id <= lines_vec.len() - 7 {
-        monkeys.push(read_monkey(&lines_vec, id));
+        let monkey = read_monkey(&lines_vec, id);
+        lcm *= monkey.divisible_by;
+        monkeys.push(monkey);
         id += 7;
     }
     let monkeys_count = monkeys.len();
-    for _i in 1..21 {
+    for round in 1..10001 {
         // round
         //let mut mid = monkeys.len();
         for mid in 0..monkeys_count {           
             loop {
-                let passed_value: i32;
+                let passed_value: u64;
                 let to_whom: usize;
                 {
                     let curr_monkey = &mut monkeys[mid];
@@ -123,9 +126,9 @@ fn solve_1(input: &str) -> i32 {
                     }
                     curr_monkey.items_visitted+=1;
                     let item_num = item.unwrap();
+                   // println!("ROUND {round} Monkey {mid}; item before {item_num}");
                     let item_num_after = curr_monkey.operation.unwrap()(item_num, curr_monkey.operation_number);
-                    //println!("Monkey {mid}; item before {item_num}, item_after {item_num_after}");
-                    passed_value = item_num_after / 3;
+                    passed_value = item_num_after % lcm;
                     if passed_value % curr_monkey.divisible_by == 0 {
                         to_whom = curr_monkey.divisible_true as usize; 
                     }
@@ -136,6 +139,7 @@ fn solve_1(input: &str) -> i32 {
                 //println!("from {mid} to {to_whom} value {passed_value}");
                 monkeys[to_whom].items.push_back(passed_value);
             }
+           // println!("ROUND {round}, monkey {}, visitted {}, items {:?}", monkeys[mid].id, monkeys[mid].items_visitted, monkeys[mid].items);
         } // monkeys
     } //round
     let mut max1 = 0;
