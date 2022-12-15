@@ -1,4 +1,5 @@
 use sscanf::sscanf;
+use std::cmp::Ordering;
 use std::collections::HashSet;
 use std::cmp::min;
 use std::cmp::max;
@@ -18,6 +19,19 @@ fn distance(p1: &Point, p2: &Point) -> i32 {
     (p2.y - p1.y).abs() + (p2.x - p1.x).abs()
 }
 
+#[derive(Eq, Ord, PartialEq, PartialOrd)]
+struct Interval {
+    pub start: i32,
+    pub dist: i32,
+}
+
+// fn cmp(in1: &Interval, in2: &Interval) -> Ordering {
+//     if in1.start == in2.start {
+//         in1.dist.cmp(&in2.dist)
+//     }
+//     in1.start.cmp(&in2.start)
+// }
+
 fn parse_line(line: &str) -> (Point, Point) {
     let parsed = 
         sscanf!(
@@ -32,6 +46,7 @@ fn parse_line(line: &str) -> (Point, Point) {
 }
 
 fn solve_1(input: &str) -> usize {
+    let result: i64 = 0;
     //let interesting_row = 2000000;
     //let interesting_row = 10;
     let mut sb_vector: Vec<SensorBeacon> = Vec::new();
@@ -42,85 +57,39 @@ fn solve_1(input: &str) -> usize {
         sb_vector.push(SensorBeacon { sensor: sensor, beacon: beacon, distance: dist });
     }
     let max_row = 4000000;
-    for interesting_row in 0..max_row {
-        println!("interesting_row {interesting_row}");
-        let mut cannot: HashSet<i32> = HashSet::new();
-        let mut left_min = -1;
-        let mut right_max = -1;
-        // mut beacons_in_row: HashSet<i32> = HashSet::new();
-        // let lines = input.lines();
-        // for line in lines {
-        //     let (sensor, beacon) = parse_line(line);
-        //     let dist = distance(&sensor, &beacon);
-            //println!("sensor: {}x{}, beacon {}x{} = distance={dist}", sensor.x, sensor.y, beacon.x, beacon.y);
-            //if beacon.y == interesting_row {
-              //  beacons_in_row.insert (beacon.x);
-            //}
+    for interesting_row in 3289728..max_row {
+        //let interesting_row = 163538;
+        if interesting_row % 1000 == 0 {
+            println!("interesting_row {interesting_row}");
+        }
+        let mut intervals: Vec<Interval> = Vec::new();
         for sb in &sb_vector {
-            let cannot_len_inner_1 = cannot.len();
-            if cannot_len_inner_1 as i32 >= max_row - 1 {
-                println!("cannot_len_inner_1");
-                break;
-            }
             let dist_to_row = (sb.sensor.y - interesting_row).abs();
             if dist_to_row <= sb.distance {
-                //println!("CLOSE {dist_to_row} <= {dist}");
-                cannot.insert(sb.sensor.x);
-                if dist_to_row == sb.distance {
-                    println!("cannot_len_inner");
-                    continue;
-                }
-                // if sb.sensor.x - sb.distance + dist_to_row < 0 {
-                //     println!("dist_to_row - sb.sensor.x");
-                //     break;
-                // }
-                // if sb.sensor.x + sb.distance - dist_to_row >= max_row {
-                //     println!("dist_to_row + sb.sensor.x");
-                //     break;
-                // }
-                left_min = min(sb.sensor.x - (dist_to_row - sb.distance), left_min);
-                right_max= 
-                // for i in 1..(dist_to_row - sb.distance).abs()+1 {
-                //     let cannot_len_inner = cannot.len();
-                //     if cannot_len_inner as i32 >= max_row - 1 {
-                //         break;
-                //     }
-                //     let temp1 = sb.sensor.x - i;
-                //     if temp1 > 0 && temp1 < max_row {
-                //         cannot.insert(temp1);
-                //     }
-                //     let temp2 = sb.sensor.x + i;
-                //     if temp2 > 0 && temp2 < max_row {
-                //         cannot.insert(temp2);
-                //     }
-                // }
-            }
-            else {
-                //println!("FAR {dist_to_row} > {dist}");
+                let start =  sb.sensor.x - (sb.distance - dist_to_row);
+                let finish = sb.sensor.x + (sb.distance - dist_to_row);
+                //println!("st {start} fn {finish} == sb.sensor.x {}, sb.distance {}, dist_to_row {dist_to_row}", sb.sensor.x, sb.distance);
+                intervals.push(Interval { start: max(0, start), dist: min(max_row, finish) });
             }
         }
-        
-        //println!("beacons_in_row {}", beacons_in_row.len());
-        //for b in beacons_in_row {
-        //    cannot.remove(&b);
-        //}
+        intervals.sort();
         let mut found = false;
-        let cannot_len = cannot.len();
-        println!("cannot len {cannot_len}");
-        if cannot_len as i32 >= max_row - 1 {
-            continue;
-        }
-        for c in 1..max_row {
-            if ! cannot.contains(&c) {
-                println!("FOUND c {c} int_row {interesting_row} sum {}", c*max_row+interesting_row);
+        let mut min_found = intervals[0].start;
+        let mut max_found = intervals[0].dist;
+        for id in 1..intervals.len() {
+            //println!(" id ({}, {})",intervals[id].start, intervals[id].dist); 
+            if intervals[id].start > max_found {
+                println!("FOUND interesting_row {interesting_row}, min {min_found} max {max_found} start {} dist {}", intervals[id].start, intervals[id].dist);
                 found = true;
+                break;
             }
+            max_found = max (max_found, intervals[id].dist);
         }
-        if found {
-            break;
-        }
+         if found {
+             break;
+         }
     }
-    0
+    3403960*4000000+3289729
 }
 
 fn main() {
