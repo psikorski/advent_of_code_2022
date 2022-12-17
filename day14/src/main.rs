@@ -116,6 +116,10 @@ fn draw_rocks(mat: &mut DynamicMatrix<char>, rock_lines: &RockLines, shift: i32)
             }
         }
     }
+    let (width, height) = mat.shape();
+    for x in 0..width {
+        mat[(x, height-1)] = '#';
+    }
 }
 
 fn is_in(mat: &mut DynamicMatrix<char>, pt: &Point) -> bool {
@@ -143,38 +147,33 @@ fn is_empty(mat: &mut DynamicMatrix<char>, pt: &Point) -> bool {
 }
 
 fn mark_sand(mat: &mut DynamicMatrix<char>, start: Point, falls: &mut bool) -> bool {
-    if *falls {
-        println!("fall detected {} {}?", start.x, start.y);
-        *falls = true;
-        return false
-    }
+    // if *falls {
+    //     println!("fall detected {} {}?", start.x, start.y);
+    //     *falls = true;
+    //     return false
+    // }
     let (_, height) = mat.shape();
     //println!("mark_sand {:#?}", start.pair());
     let down = start.increase(0, 1);
     let left = start.increase(-1, 1);
     let right = start.increase(1, 1);
-    if start.yu() >= height-1 && is_empty(mat, &start) {
-        println!("START will fall {} {}?", start.x, start.y);
-        *falls = true;
-        return false
-    }
-    if down.yu() >= height-1 && is_empty(mat, &down){
-        println!("DOWN will fall {} {}?", down.x, down.y);
-        *falls = true;
-        return false
-    }
-    if left.yu() >= height-1 && is_empty(mat, &left){
-        println!("LEFT will fall {} {}?", left.x, left.y);
-        *falls = true;
-        return false
-    }
-    if right.yu() >= height-1 && is_empty(mat, &right){
-        println!("RIGT will fall {} {}?", right.x, right.y);
-        *falls = true;
-        return false
-    }
-    // if left.x <= 0 || right.xu() >= width {
-    //     //println!("Will fall {} {}?", start.x, start.y);
+    // if start.yu() >= height-1 && is_empty(mat, &start) {
+    //     println!("START will fall {} {}?", start.x, start.y);
+    //     *falls = true;
+    //     return false
+    // }
+    // if down.yu() >= height-1 && is_empty(mat, &down){
+    //     println!("DOWN will fall {} {}?", down.x, down.y);
+    //     *falls = true;
+    //     return false
+    // }
+    // if left.yu() >= height-1 && is_empty(mat, &left){
+    //     println!("LEFT will fall {} {}?", left.x, left.y);
+    //     *falls = true;
+    //     return false
+    // }
+    // if right.yu() >= height-1 && is_empty(mat, &right){
+    //     println!("RIGT will fall {} {}?", right.x, right.y);
     //     *falls = true;
     //     return false
     // }
@@ -189,9 +188,9 @@ fn mark_sand(mat: &mut DynamicMatrix<char>, start: Point, falls: &mut bool) -> b
         return true
     }
 
-    if *falls {
-        return false
-    }
+    // if *falls {
+    //     return false
+    // }
 
     if is_in(mat, &start) && is_empty(mat, &start) {
         mat[start.pair()] = 'o';
@@ -205,8 +204,8 @@ fn solve_1(input: &str) -> usize {
     
     let (left, top, right, bottom) = find_boundaries(&rock_lines);
     println!("L {left} T {top} R{right} B {bottom}");
-    let width = (right - left).abs() as usize;
-    let height = (bottom - top).abs() as usize;
+    let width = (right - left+500).abs() as usize;
+    let height = (bottom - top+2).abs() as usize;
     println!("W {width} H {height}");
     //top-left is 0,0
     // right - left = width
@@ -224,19 +223,19 @@ fn solve_1(input: &str) -> usize {
     // mat fields set with 0
 
     // przesuniecie o left
-    draw_rocks(&mut mat, &rock_lines, left);
+    draw_rocks(&mut mat, &rock_lines, left-250);
 
     // draw start
-    let start = Point{x: 500 - left, y: 0};
+    let start = Point{x: 750 - left, y: 0};
     mat[start.pair()] = 'S';
 
     let mut count_sand = 0;
     loop {
         let mut falls = false;
         if mark_sand(&mut mat, start, &mut falls) {
-            if falls {
-                break;
-            }
+            //if falls {
+            //    break;
+            //}
             count_sand += 1;
         }
         else {
