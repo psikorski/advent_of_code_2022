@@ -7,4 +7,5 @@ description = "https://adventofcode.com/2022/day/14"
 
 [dependencies]
 nom = "7.1.1"
-pathfinding = "4.0.0"
+dynamic-matrix = "0.1.1"
+sscanf = "0.4.0"
