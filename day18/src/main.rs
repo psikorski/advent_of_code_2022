@@ -1,5 +1,9 @@
+use nom::multi::count;
 use sscanf::sscanf;
+use std::collections::HashSet;
+use std::hash::{Hash};
 
+#[derive(Eq, Hash, PartialEq)]
 struct Point {
     pub x: i32,
     pub y: i32,
@@ -10,6 +14,74 @@ impl Point {
         Point{x: a, y: b, z: c}
     }
 }
+
+#[derive(Eq, PartialEq)]
+struct Side {
+    pub pts: HashSet<Point>,
+}
+
+
+fn generate_sides(point: &Point) -> Vec<Side> {
+    // cube out of point
+    // 6 sides
+    let mut result: Vec<Side> = Vec::new();
+    {
+        // FRONT
+        let mut s: Side = Side{pts: HashSet::new()};
+        s.pts.insert(Point{x: point.x, y: point.y, z: point.z});
+        s.pts.insert(Point{x: point.x, y: point.y+1, z: point.z});
+        s.pts.insert(Point{x: point.x+1, y: point.y, z: point.z});
+        s.pts.insert(Point{x: point.x+1, y: point.y+1, z: point.z});
+        result.push(s);
+    }
+    {
+        // BACK
+        let mut s: Side = Side{pts: HashSet::new()};
+        s.pts.insert(Point{x: point.x, y: point.y, z: point.z+1});
+        s.pts.insert(Point{x: point.x, y: point.y+1, z: point.z+1});
+        s.pts.insert(Point{x: point.x+1, y: point.y, z: point.z+1});
+        s.pts.insert(Point{x: point.x+1, y: point.y+1, z: point.z+1});
+        result.push(s);
+    }
+    {
+        // LEFT
+        let mut s: Side = Side{pts: HashSet::new()};
+        s.pts.insert(Point{x: point.x, y: point.y, z: point.z});
+        s.pts.insert(Point{x: point.x, y: point.y+1, z: point.z});
+        s.pts.insert(Point{x: point.x, y: point.y, z: point.z+1});
+        s.pts.insert(Point{x: point.x, y: point.y+1, z: point.z+1});
+        result.push(s);
+    }
+    {
+        // RIGHT
+        let mut s: Side = Side{pts: HashSet::new()};
+        s.pts.insert(Point{x: point.x+1, y: point.y, z: point.z});
+        s.pts.insert(Point{x: point.x+1, y: point.y+1, z: point.z});
+        s.pts.insert(Point{x: point.x+1, y: point.y, z: point.z+1});
+        s.pts.insert(Point{x: point.x+1, y: point.y+1, z: point.z+1});
+        result.push(s);
+    }
+    {
+        // UP
+        let mut s: Side = Side{pts: HashSet::new()};
+        s.pts.insert(Point{x: point.x, y: point.y+1, z: point.z});
+        s.pts.insert(Point{x: point.x+1, y: point.y+1, z: point.z});
+        s.pts.insert(Point{x: point.x, y: point.y+1, z: point.z+1});
+        s.pts.insert(Point{x: point.x+1, y: point.y+1, z: point.z+1});
+        result.push(s);
+    }
+    {
+        // DOWN
+        let mut s: Side = Side{pts: HashSet::new()};
+        s.pts.insert(Point{x: point.x, y: point.y, z: point.z});
+        s.pts.insert(Point{x: point.x+1, y: point.y, z: point.z});
+        s.pts.insert(Point{x: point.x, y: point.y, z: point.z+1});
+        s.pts.insert(Point{x: point.x+1, y: point.y, z: point.z+1});
+        result.push(s);
+    }
+    result
+}
+
 
 fn read_lines(input: &str) -> Vec<Point> {
     let mut result: Vec<Point> = Vec::new();
@@ -23,13 +95,27 @@ fn read_lines(input: &str) -> Vec<Point> {
 
 fn solve_1(input: &str) -> usize {
     let points = read_lines(input);
-    println!("Points {}", points.len()) ;
-    // TODO solve
-0
+    println!("Points {}", points.len());
+    let mut all_sides: Vec<Side> = Vec::new();
+    let mut counter = 0;
+    for point in &points {
+        println!("counter: {counter}");
+        counter += 1;
+        let sides = generate_sides(point);
+        for s in sides {
+            let found = all_sides.iter().position(|a_s| a_s==&s);
+            if found.is_some() {
+                all_sides.remove(found.unwrap());
+                continue;
+            }
+            all_sides.push(s);
+        }
+    }
+    all_sides.len()
 }
 
 fn main() {
-    let input = include_str!("../input_sample.txt");
+    let input = include_str!("../input.txt");
     let result1 = solve_1(input);
     println!("result1 = {result1}");
     //let result2 = solve_2(input);
