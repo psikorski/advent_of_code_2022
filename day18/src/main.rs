@@ -1,4 +1,3 @@
-use nom::multi::count;
 use sscanf::sscanf;
 use std::collections::HashSet;
 use std::hash::{Hash};
@@ -19,7 +18,6 @@ impl Point {
 struct Side {
     pub pts: HashSet<Point>,
 }
-
 
 fn generate_sides(point: &Point) -> Vec<Side> {
     // cube out of point
@@ -95,27 +93,34 @@ fn read_lines(input: &str) -> Vec<Point> {
 
 fn solve_1(input: &str) -> usize {
     let points = read_lines(input);
-    println!("Points {}", points.len());
+    println!("Points (volume) {}", points.len());
     let mut all_sides: Vec<Side> = Vec::new();
+    let mut removed = 0;
     let mut counter = 0;
     for point in &points {
-        println!("counter: {counter}");
+        if counter %100 == 0 {
+            println!("counter: {counter}");
+        }
         counter += 1;
         let sides = generate_sides(point);
         for s in sides {
             let found = all_sides.iter().position(|a_s| a_s==&s);
             if found.is_some() {
                 all_sides.remove(found.unwrap());
+                removed += 2;
                 continue;
             }
             all_sides.push(s);
         }
     }
-    all_sides.len()
+    let surface = all_sides.len();
+    println!("Volume = {}, Surface = {} Removed {}", points.len(), surface, removed);
+    0
+
 }
 
 fn main() {
-    let input = include_str!("../input.txt");
+    let input = include_str!("../input_sample.txt");
     let result1 = solve_1(input);
     println!("result1 = {result1}");
     //let result2 = solve_2(input);
