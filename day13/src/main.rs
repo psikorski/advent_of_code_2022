@@ -1,9 +1,5 @@
 use std::cmp::min;
-use std::fmt;
-enum ElementType {
-    Int,
-    Vector,
-}
+
 #[derive(Debug)]
 struct Element{
     pub elements: Vec<Box<Element>>,
@@ -63,11 +59,44 @@ fn print_el(elem: &Element) {
     }
 }
 
-fn compare(el1: &Element, el2: &Element) -> bool{
+fn compare(el1: &mut Element, el2: &mut Element) -> bool{
     let val1_b = el1.value.is_some();
-    let val2_b = el1.value.is_some();
+    let val2_b = el2.value.is_some();
     
-    if el1.value.is_some() && el2.value
+    if val1_b && val2_b {
+        return el1.value.unwrap() <= el2.value.unwrap()
+    }
+    else if val1_b && !val2_b {
+        el1.elements.push(Box::new(Element::simple_val(el1.value.unwrap())));
+        el1.value = Option::None;
+        return compare(el1, el2)
+    }
+    else if !val1_b && val2_b {
+        el2.elements.push(Box::new(Element::simple_val(el2.value.unwrap())));
+        el2.value = Option::None;
+        return compare(el1, el2)
+    }
+    else {
+        let mut id = 0;
+        let len1 = el1.elements.len();
+        let len2 = el2.elements.len();
+        loop {
+            if id >= len1 && id < len2 {
+                return true
+            }
+            if id < len1 && id >= len2 {
+                return false
+            }
+            if id >= len1 && id >= len2 {
+                return true
+            }
+            if !compare(&mut el1.elements[id], &mut el2.elements[id]) {
+                return false
+            }
+            id += 1;
+        }
+    }
+    true
 }
 
 fn solve_1(input: &str) -> usize {
@@ -81,10 +110,11 @@ fn solve_1(input: &str) -> usize {
     // read and check pairs
     while pair_id < lines_len {
         let mut id = 1;
-        let el1 = read_el(&lines_vec[3*pair_id], &mut id);
+        let mut el1 = read_el(&lines_vec[3*pair_id], &mut id);
         id = 1;
         //print_el(&el1);
-        let el2 = read_el(&lines_vec[3*pair_id+1], &mut id);
+        let mut el2 = read_el(&lines_vec[3*pair_id+1], &mut id);
+        println!("el1 < el2 {}", compare(&mut el1, &mut el2));
         //print_el(&el2);
         pair_id+=1; // TODO consider replacing with for loop
     }
