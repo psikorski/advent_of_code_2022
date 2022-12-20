@@ -31,7 +31,7 @@ fn read_el(line: &str, id: &mut usize) -> Element {
         else {
             let comma = line[*id..].find(',');
             let closing_brackets = line[*id..].find(']');
-            let mut end = 0;
+            let mut end: usize;
             if comma.is_none() && closing_brackets.is_some() {
                 end = closing_brackets.unwrap();
             }
@@ -50,6 +50,7 @@ fn read_el(line: &str, id: &mut usize) -> Element {
     result
 }
 
+#[allow(dead_code)]
 fn print_el(elem: &Element) {
     if elem.value.is_some() {
         println!("READ Value: {}", elem.value.unwrap());
@@ -59,12 +60,27 @@ fn print_el(elem: &Element) {
     }
 }
 
-fn compare(el1: &mut Element, el2: &mut Element) -> bool{
+#[derive(Debug, PartialEq)]
+enum CmpResult{
+    LeftSmaller,
+    CONTINUE,
+    RightSmaller,
+}
+
+fn compare(el1: &mut Element, el2: &mut Element) -> CmpResult {
     let val1_b = el1.value.is_some();
     let val2_b = el2.value.is_some();
     
     if val1_b && val2_b {
-        return el1.value.unwrap() <= el2.value.unwrap()
+        let el1_v = el1.value.unwrap();
+        let el2_v = el2.value.unwrap();
+        if el1_v < el2_v {
+            return CmpResult::LeftSmaller
+        }
+        else if el1_v > el2_v {
+            return CmpResult::RightSmaller
+        }
+        return CmpResult::CONTINUE
     }
     else if val1_b && !val2_b {
         el1.elements.push(Box::new(Element::simple_val(el1.value.unwrap())));
@@ -81,48 +97,52 @@ fn compare(el1: &mut Element, el2: &mut Element) -> bool{
         let len1 = el1.elements.len();
         let len2 = el2.elements.len();
         loop {
-            if id >= len1 && id < len2 {
-                return true
+            if id >= len1 { //LEFT run out of items (RIGHT does not matter)
+                return CmpResult::LeftSmaller
             }
-            if id < len1 && id >= len2 {
-                return false
+            if id < len1 && id >= len2 { //RIGHT run out of items
+                return CmpResult::RightSmaller
             }
-            if id >= len1 && id >= len2 {
-                return true
+            let cmp_res = compare(&mut el1.elements[id], &mut el2.elements[id]);
+            if cmp_res == CmpResult::CONTINUE {
+                id += 1;
+                continue
             }
-            if !compare(&mut el1.elements[id], &mut el2.elements[id]) {
-                return false
+            else {
+                return cmp_res
             }
-            id += 1;
+            
         }
     }
-    true
 }
 
 fn solve_1(input: &str) -> usize {
     let lines_vec: Vec<&str> = input.lines().collect();
     let lines_len = (lines_vec.len()+1)/3;
     let mut pair_id = 0;
-    
-    //0*3, 1*3,  2*3  3*3
-    //0,1, 3,4, ,6,7, 9,10
 
-    // read and check pairs
+    let mut result = 0;
     while pair_id < lines_len {
         let mut id = 1;
         let mut el1 = read_el(&lines_vec[3*pair_id], &mut id);
         id = 1;
         //print_el(&el1);
         let mut el2 = read_el(&lines_vec[3*pair_id+1], &mut id);
-        println!("el1 < el2 {}", compare(&mut el1, &mut el2));
         //print_el(&el2);
         pair_id+=1; // TODO consider replacing with for loop
+        let cmp_res = compare(&mut el1, &mut el2);
+        match cmp_res {
+            CmpResult::LeftSmaller => result+=pair_id,
+            CmpResult::CONTINUE => result+=pair_id,
+            _=>(),
+        }
+        println!("{pair_id} el1 < el2 {:?}", cmp_res);
     }
-0
+    result
 }
 
 fn main() {
-    let input = include_str!("../input_sample.txt");
+    let input = include_str!("../input.txt");
     let result1 = solve_1(input);
     println!("result1 = {result1}");
     //let result2 = solve_2(input);
