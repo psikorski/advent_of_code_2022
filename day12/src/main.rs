@@ -15,7 +15,7 @@ impl Node {
     //     Node(x+2,y+1), Node(x+2,y-1), Node(x-2,y+1), Node(x-2,y-1)]
     //        .into_iter().map(|p| (p, 1)).collect()
     // }
-    fn successors(&self, raw_bytes: &[u8], length: i32, height: i32, end: &Node) -> Vec<Node> {
+    fn successors(&self, raw_bytes: &[u8], length: i32, height: i32, _end: &Node) -> Vec<Node> {
         let &Node{x, y} = self;
         let mut result: Vec<Node> = Vec::new();
         let mut curr = raw_bytes[(x+y * length) as usize];
@@ -119,7 +119,7 @@ fn solve_1(input: &str) -> usize {
             let start = Node{x: s_id_conv%length, y: s_id_conv / length};
             println!("start s_id{s_id} ({}x{}), end e_id{e_id} ({}x{})", start.x, start.y, end.x, end.y);
             let result = bfs(&start, |p| p.successors(raw_bytes, length, height, &end), |p| *p == end);
-            let mut ret = 0;
+            let ret;
             if result.is_none() {
                 println!("NONE");
             }

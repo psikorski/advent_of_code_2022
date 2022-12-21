@@ -111,7 +111,7 @@ fn solve_1(input: &str) -> u64 {
         id += 7;
     }
     let monkeys_count = monkeys.len();
-    for round in 1..10001 {
+    for _round in 1..10001 {
         // round
         //let mut mid = monkeys.len();
         for mid in 0..monkeys_count {           

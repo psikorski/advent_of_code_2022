@@ -31,7 +31,7 @@ fn read_el(line: &str, id: &mut usize) -> Element {
         else {
             let comma = line[*id..].find(',');
             let closing_brackets = line[*id..].find(']');
-            let mut end = 0;
+            let mut end;
             if comma.is_none() && closing_brackets.is_some() {
                 end = closing_brackets.unwrap();
             }
@@ -50,14 +50,14 @@ fn read_el(line: &str, id: &mut usize) -> Element {
     result
 }
 
-fn print_el(elem: &Element) {
-    if elem.value.is_some() {
-        println!("READ Value: {}", elem.value.unwrap());
-    }
-    else {
-        println!("READ: {:?}", elem.elements);
-    }
-}
+// fn print_el(elem: &Element) {
+//     if elem.value.is_some() {
+//         println!("READ Value: {}", elem.value.unwrap());
+//     }
+//     else {
+//         println!("READ: {:?}", elem.elements);
+//     }
+// }
 
 fn compare(el1: &mut Element, el2: &mut Element) -> bool{
     let val1_b = el1.value.is_some();
@@ -96,7 +96,6 @@ fn compare(el1: &mut Element, el2: &mut Element) -> bool{
             id += 1;
         }
     }
-    true
 }
 
 fn solve_1(input: &str) -> usize {
