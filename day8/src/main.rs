@@ -17,7 +17,7 @@ fn solve(input: &str) -> usize {
             let mut sub_score_left = 0;
             let mut xl = i-1;
             //for x in (-1..i-1).rev() {
-            while xl >= 0 {
+            while xl > 0 {
                 let idx = j*(width+2)+xl;
                 //println!("LEFT j{j}, i{i}, id{id}, x{xl}, idx{idx} [c{}]", raw_bytes[idx]);
                 sub_score_left+=1;
@@ -61,7 +61,7 @@ fn solve(input: &str) -> usize {
             let mut sub_score_top = 0;
             let mut yt = j-1;
             //for y in (0..j-1).rev() {
-            while yt >=0 {
+            while yt >0 {
                 let idy = yt*(width+2)+i;
                 //println!("TOP j{j}, i{i}, id{id}, x{yt}, idx{idy} {}", raw_bytes[idy] as char);
                 sub_score_top +=1;

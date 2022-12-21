@@ -1,6 +1,4 @@
 use sscanf::sscanf;
-use std::cmp::Ordering;
-use std::collections::HashSet;
 use std::cmp::min;
 use std::cmp::max;
 
@@ -11,7 +9,7 @@ struct Point{
 
 struct SensorBeacon {
     pub sensor: Point,
-    pub beacon: Point,
+    //pub beacon: Point,
     pub distance: i32,
 }
 
@@ -46,7 +44,6 @@ fn parse_line(line: &str) -> (Point, Point) {
 }
 
 fn solve_1(input: &str) -> usize {
-    let result: i64 = 0;
     //let interesting_row = 2000000;
     //let interesting_row = 10;
     let mut sb_vector: Vec<SensorBeacon> = Vec::new();
@@ -54,7 +51,7 @@ fn solve_1(input: &str) -> usize {
     for line in lines {
         let (sensor, beacon) = parse_line(line);
         let dist = distance(&sensor, &beacon);
-        sb_vector.push(SensorBeacon { sensor: sensor, beacon: beacon, distance: dist });
+        sb_vector.push(SensorBeacon { sensor: sensor, /*beacon: beacon,*/ distance: dist });
     }
     let max_row = 4000000;
     for interesting_row in 3289728..max_row {
@@ -74,7 +71,7 @@ fn solve_1(input: &str) -> usize {
         }
         intervals.sort();
         let mut found = false;
-        let mut min_found = intervals[0].start;
+        let min_found = intervals[0].start;
         let mut max_found = intervals[0].dist;
         for id in 1..intervals.len() {
             //println!(" id ({}, {})",intervals[id].start, intervals[id].dist); 
@@ -93,7 +90,7 @@ fn solve_1(input: &str) -> usize {
 }
 
 fn main() {
-    let input = include_str!("../input.txt");
+    let input = include_str!("../input_sample.txt");
     let result1 = solve_1(input);
     println!("result1 = {result1}");
     //let result2 = solve_2(input);

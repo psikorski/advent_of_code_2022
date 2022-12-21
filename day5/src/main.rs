@@ -57,6 +57,7 @@ impl Towers {
         }
     }
 
+    #[allow(dead_code)]
     fn move_blocks(&mut self, mv: Move) {
         for _i in 0..mv.count {
             let moved = self.towers[(mv.source - 1) as usize].heap.pop().unwrap();

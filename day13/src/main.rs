@@ -73,6 +73,7 @@ fn print_el(elem: &Element) {
 }
 
 
+
 fn compare(el1: &Element, el2: &Element) -> Ordering {
     let mut mel1 = el1.copyy();
     let mut mel2 = el2.copyy();

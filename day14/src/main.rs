@@ -34,11 +34,11 @@ impl Point {
     }
 }
 
-impl Line {
-    pub fn new(a: Point, b: Point) -> Self {
-        Self { A: a, B: b }
-    }
-}
+// impl Line {
+//     pub fn new(a: Point, b: Point) -> Self {
+//         Self { A: a, B: b }
+//     }
+// }
 
 struct RockLines{
     pub lines: Vec<Line>,
@@ -152,7 +152,7 @@ fn mark_sand(mat: &mut DynamicMatrix<char>, start: Point, falls: &mut bool) -> b
     //     *falls = true;
     //     return false
     // }
-    let (_, height) = mat.shape();
+    //let (_, _) = mat.shape();
     //println!("mark_sand {:#?}", start.pair());
     let down = start.increase(0, 1);
     let left = start.increase(-1, 1);
