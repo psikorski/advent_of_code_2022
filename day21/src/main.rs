@@ -207,7 +207,6 @@ fn choose_proper(dep: &str, monkeys: &MonkeysMap, queue: &mut VecDeque<QueuedOpe
     let monkey = &monkeys[dep];
 
     if monkey.name == "humn" {
-        println!("Found");
         return (monkey.number.as_ref().unwrap().clone(), true)
     }
 
@@ -235,8 +234,8 @@ fn choose_proper(dep: &str, monkeys: &MonkeysMap, queue: &mut VecDeque<QueuedOpe
 fn solve_1(input: &str) -> i64 {
     let mut monkeys = read_lines(input);
 
-    let result = get_dependent("root", &mut monkeys);
-    println!("Result: {}", result.0);
+    let result = get_full_operation("root", &mut monkeys);
+    println!("Result: {}", result);
     0
 }
 
@@ -257,10 +256,12 @@ fn solve_2(input: &str) -> i64 {
 
     let mut queue: VecDeque<QueuedOperation> = VecDeque::new();
     let (a,b) = choose_proper(child, &monkeys, &mut queue);
-    println!("A {a}, B {b}");
+    println!("A {a}, B {b} queue len {}", queue.len());
+
 
     while ! queue.is_empty() {
         let current = queue.pop_front().unwrap(); //or back?
+        println!("val: {val}; curr {} {} {:#?}", current.left, current.other, current.sign);
         val = current.execute(val.clone());
     }
 
