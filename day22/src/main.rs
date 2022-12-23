@@ -1,6 +1,4 @@
 use std::{cmp::max, collections::VecDeque};
-use sscanf::sscanf;
-use dynamic_matrix::{DynamicMatrix};
 
 fn find_length(lines_vec: &Vec<&str>) -> usize {
     let mut result = 0;
@@ -44,7 +42,7 @@ fn read_moves(input: &str) -> VecDeque<String> {
 }
 
 fn read_map_and_moves(input: &str) -> (Vec<&str>, usize, VecDeque<String>) {
-    let lines_vec: Vec<&str> = input.lines().collect();
+    let mut lines_vec: Vec<&str> = input.lines().collect();
     let row_length = find_length(&lines_vec);
     let row_count = lines_vec.len();
     println!("row_length: {row_length}, row_count {row_count}");
@@ -57,6 +55,9 @@ fn read_map_and_moves(input: &str) -> (Vec<&str>, usize, VecDeque<String>) {
     for m in &moves_queue {
         println!("Move: {m}");
     }
+
+    lines_vec.remove(lines_vec.len()-1);
+    lines_vec.remove(lines_vec.len()-1);
 
     (lines_vec, start, moves_queue)
 }
@@ -91,26 +92,149 @@ fn change_direction(current_direction: &char, turn: &char) -> char {
     }
 }
 
-fn new_position((x, y): (usize, usize), direction: &char) -> (i32, i32) {
+fn new_position((x, y): (i32, i32), direction: &char) -> (i32, i32) {
     match direction {
-        '<'=> ((x as i32) - 1, y as i32),
-        '^'=> (x as i32, (y as i32) - 1),
-        '>'=> ((x as i32) + 1, y as i32),
-        'v'=> (x as i32, (y as i32) + 1),
-        _  => (x as i32,y as i32),
+        '<'=> (x - 1, y),
+        '^'=> (x    , y - 1),
+        '>'=> (x + 1, y),
+        'v'=> (x    , y + 1),
+        _  => (x    , y),
     }
 }
 
-fn get(lines_vec: &Vec<&str>, (x,y): (usize, usize)) -> char {
-    lines_vec[y].as_bytes()[x] as char
+fn get(lines_vec: &Vec<&str>, (x,y): (i32, i32)) -> char {
+    lines_vec[y as usize].as_bytes()[x as usize] as char
 }
 
-fn solve_1(input: &str) -> i64 {
+// let cached_min_max_h: Vec<(usize, usize)>
+// let cached_min_max_w: Vec<(usize, usize)>
+
+fn get_min_height(lines_vec: &Vec<&str>, x: usize) -> i32 {
+    for id in 0..lines_vec.len() {
+        if lines_vec[id].as_bytes()[x] as char != ' ' {
+            return id as i32
+        }
+    }
+    0
+}
+
+fn get_max_height(lines_vec: &Vec<&str>, x: usize) -> i32 {
+    let mut id = lines_vec.len() as i32 -1;
+    while id >= 0 {
+        if lines_vec[id as usize].len() <= x {
+            id -= 1;
+            continue
+        }
+        if lines_vec[id as usize].as_bytes()[x] as char != ' ' {
+            return id
+        }
+        id -= 1;
+    }
+    lines_vec.len() as i32 -1
+}
+
+fn get_min_width(lines_vec: &Vec<&str>, y: usize) -> i32 {
+    for id in 0..lines_vec[y].len() {
+        if lines_vec[y].as_bytes()[id] as char != ' ' {
+            return id as i32
+        }
+    }
+    0
+}
+
+fn get_max_width(lines_vec: &Vec<&str>, y: usize) -> i32 {
+    let mut id = lines_vec[y].len() as i32 - 1;
+    while id >= 0 {
+        if lines_vec[y].as_bytes()[id as usize] as char != ' ' {
+            return id
+        }
+        id -= 1;
+    }
+    lines_vec[y].len() as i32 -1
+}
+
+fn new_position_on_map(
+    (x, y): (i32, i32), 
+    direction: &char, 
+    lines_vec: &Vec<&str>
+) -> (i32, i32) {
+    let mut result = (x, y);
+    let possible_pos = new_position((x as i32, y as i32), &direction);
+    let min_height = get_min_height(lines_vec, x as usize);
+    let max_height = get_max_height(lines_vec, x as usize);
+    let min_width = get_min_width(lines_vec, y as usize);
+    let max_width = get_max_width(lines_vec, y as usize);
+
+    // TODO "-1" a co z \r\n ?????????
+    
+    if possible_pos.0 < min_width {
+        // check if # at the end, if not then move
+        let new_char = get(&lines_vec, (max_width, y));
+        if new_char != '.' {
+            // position not changed
+        }
+        else {
+            result.0 = max_width;
+        }
+    }
+    else if possible_pos.0 > max_width {
+        // check if # at the start, if not then move
+        let new_char = get(&lines_vec, (min_width, y));
+        if new_char != '.' {
+            // position not changed
+        }
+        else {
+            result.0 = min_width;
+        }
+    }
+    else if possible_pos.1 < min_height {
+        // check if # at the end, if not then move
+        let new_char = get(&lines_vec, (x, max_height));
+        if new_char != '.' {
+            // position not changed
+        }
+        else {
+            result.1 = max_height;
+        }
+    }
+    else if possible_pos.1 > max_height {
+        // check if # at the start, if not then move
+        let new_char = get(&lines_vec, (x, min_height));
+        if new_char != '.' {
+            // position not changed
+        }
+        else {
+            result.1 = min_height;
+        }
+    }
+    else {
+        let new_char = get(&lines_vec, possible_pos);
+        if new_char != '.' {
+            // position not changed
+        }
+        else {
+            result = possible_pos;
+        }
+    }
+    result
+}
+
+fn get_num_from_direction(direction: &char) -> i32 {
+    match direction {
+        '<'=> 2,
+        '^'=> 3,
+        '>'=> 0,
+        'v'=> 1,
+        _  => 10,
+    }
+}
+
+fn solve_1(input: &str) -> i32 {
     let (lines_vec, start, mut moves_queue) = read_map_and_moves(input);
 
     //< ^ > v
     let mut current_direction = '>';
-    let mut position = (start, 0 as usize);
+    let mut position = (start as i32, 0);
     while ! moves_queue.is_empty() {
         let current = moves_queue.pop_front().unwrap();
         let steps = current.parse::<i32>();
@@ -121,29 +245,19 @@ fn solve_1(input: &str) -> i64 {
         }
         else {
             for _ in 0..steps.unwrap() {
-                let new_position = new_position(position, &current_direction);
-                if new_position.0 < 0 {
-                    // check if # at the end, if not then move
-                    let new_char = get(&lines_vec, (lines_vec[position.1].len()-1, position.1));
-                    if new_char == '#' {
-                        // position not changed
-                    }
-                    else {
-                        position.0 = lines_vec[position.1].len()-1;
-                    }
-                }
-                else if new_position.0 > lines_vec[new_position.1].len()-1 {
-                    // check if # at the start, if not then move
-                }
+                let possible_pos = new_position_on_map(position, &current_direction, &lines_vec);
+                println!("OLD P {}x{}; NEW P {}x{}", position.0, position.1, possible_pos.0, possible_pos.1);
+                position = possible_pos;
             }
         }
     }
 
-    0
+
+    1000 * (position.1 + 1) + 4 * (position.0 + 1) + get_num_from_direction(&current_direction)
 }
 
 fn main() {
-    let input = include_str!("../input_sample.txt");
+    let input = include_str!("../input.txt");
     let result1 = solve_1(input);
     println!("result1 = {result1}");
     //let result2 = solve_2(input);
