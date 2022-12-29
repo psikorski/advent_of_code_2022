@@ -1,5 +1,5 @@
 use sscanf::sscanf;
-use std::{collections::{HashMap, VecDeque}, i32::MAX, arch::x86_64::has_cpuid};
+use std::{collections::{HashMap, VecDeque, HashSet}, i32::MAX, arch::x86_64::has_cpuid};
 use pathfinding::prelude::bfs;
 
 #[derive(Clone)]
@@ -54,85 +54,6 @@ fn parse_line(line: &str) -> Valve {
     result
 }
 
-/*
-
- 1  procedure BFS(G, root) is
- 2      let Q be a queue
- 3      label root as explored
- 4      Q.enqueue(root)
- 5      while Q is not empty do
- 6          v := Q.dequeue()
- 7          if v is the goal then
- 8              return v
- 9          for all edges from v to w in G.adjacentEdges(v) do
-10              if w is not labeled as explored then
-11                  label w as explored
-12                  w.parent := v
-13                  Q.enqueue(w)
-
-
-1  procedure DFS(G, root) is
-let S be a stack
-    S.push(v)
-    while S is not empty do
-        v = S.pop()
-        if v is not labeled as discovered then
-            label v as discovered
-            for all edges from v to w in G.adjacentEdges(v) do 
-                S.push(w)
-
-
- 1  function Dijkstra(Graph, source):
- 2      
- 3      for each vertex v in Graph.Vertices:
- 4          dist[v] ← INFINITY
- 5          prev[v] ← UNDEFINED
- 6          add v to Q
- 7      dist[source] ← 0
- 8      
- 9      while Q is not empty:
-10          u ← vertex in Q with min dist[u]
-11          remove u from Q
-12          
-13          for each neighbor v of u still in Q:
-14              alt ← dist[u] + Graph.Edges(u, v)
-15              if alt < dist[v]:
-16                  dist[v] ← alt
-17                  prev[v] ← u
-18
-19      return dist[], prev[]
-
-*/
-
-fn Dijkstra(start: &Valve) {
-    let mut dist: HashMap<String, i32> = HashMap::new();
-    let mut prev: HashMap<String, (String, i32)> = HashMap::new();
-
-    let mut queue: VecDeque<Valve> = Vec::new();
-    queue.push_back(start.clone());
-
-    dist.insert(start.name, 0);  
-  
-    let mut minutes = 30;
-    while queue.len() > 0 {
-        // TODO get current rate (for opened_valves...)
-        let current_opt = queue.pop_front();
-        let current = current_opt.unwrap();
-
-
-        let children = current.valves();
-        let mut c_dist = dist.get_mut(current.name);
-        for c in children {
-            dist.get_mut(c.)
-        }
-        //      if 
-        //      if new_dist > dist[current.name]
-        //         dist[c.name] = new_dist
-        //         prev[c.name] = child.name
-
-
-    }
-}
 
 fn solve_1(input: &str) -> usize {
     let lines = input.lines();
@@ -143,16 +64,35 @@ fn solve_1(input: &str) -> usize {
     }
     let start = valves.get("AA").unwrap();
 
-    let 
-    let result = 
-        bfs(
-            &start, 
-            |p| p.successors(), 
-            |p| 
-        );
+    let mut dists: HashMap<String, i32> = HashMap::new();
+    let mut nonempty = Vec::new();
 
 
-    valves.len()
+    for (v_name, valve) in &valves {
+        if v_name != "AA" && valve.rate == 0 {
+            continue;
+        }
+        //dists.insert(v_name, 0);
+        //dists.insert("AA", 0);
+        let mut visited: HashSet<String> = HashSet::new();
+        visited.insert(*v_name);
+        let mut queue: VecDeque<(i32, &str)> = VecDeque::new();
+        queue.push_back((0, &v_name));
+        while queue.len() > 0 {
+            let (dist, position) = queue.pop_front().unwrap();
+            let neighbours = valves[position].valves;
+            for nb in neighbours {
+                if visited.contains(&nb) {
+                    continue;
+                }
+                visited.insert(nb);
+                if valves[&nb].rate != 0 {
+                    dists
+                }
+            }
+        }
+    }
+    0
 }
 
 fn main() {
