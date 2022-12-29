@@ -628,7 +628,7 @@ fn solve_1(input: &str) -> usize {
             occupied.retain(|f| f.y >= lowest_ground-1 );
             //print!(" occ_after={}\n", occupied.len());
         }
-        if rocks_counter % 100000 == 0 {
+        if rocks_counter % 1000000 == 0 {
             let duration = start.elapsed();
 
             print!("time={:?}, occ={} rocks={rocks_counter} Ground({lowest_ground}/{}): {:?}", duration, occupied.len(), highest_ground, ground);
@@ -678,13 +678,11 @@ fn solve_1(input: &str) -> usize {
             if  !item.fall(&occupied) {
                 ground = item.give_highest(&ground);
                 let occs = item.occuppies();
-                // for oc in &occs {
-                //     highest_ground = max(oc.y, highest_ground);
+                occupied.extend(occs.into_iter());
+                // for oc in occs {
+                //     //highest_ground = max(oc.y, highest_ground);
+                //     occupied.insert(oc);
                 // }
-                for oc in occs {
-                    //highest_ground = max(oc.y, highest_ground);
-                    occupied.insert(oc);
-                }
                 // go to the next rock
                 rocks_counter += 1;
                 break;
