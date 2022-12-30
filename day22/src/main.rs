@@ -43,18 +43,18 @@ fn read_moves(input: &str) -> VecDeque<String> {
 
 fn read_map_and_moves(input: &str) -> (Vec<&str>, usize, VecDeque<String>) {
     let mut lines_vec: Vec<&str> = input.lines().collect();
-    let row_length = find_length(&lines_vec);
-    let row_count = lines_vec.len();
-    println!("row_length: {row_length}, row_count {row_count}");
+    let _row_length = find_length(&lines_vec);
+    let _row_count = lines_vec.len();
+    //println!("row_length: {row_length}, row_count {row_count}");
     
     let top_row = lines_vec[0];
     let start = top_row.find('.').unwrap();
 
     let moves = lines_vec[lines_vec.len() - 1];
     let moves_queue = read_moves(moves);
-    for m in &moves_queue {
-        println!("Move: {m}");
-    }
+    //for m in &moves_queue {
+        //println!("Move: {m}");
+    //}
 
     lines_vec.remove(lines_vec.len()-1);
     lines_vec.remove(lines_vec.len()-1);
@@ -153,6 +153,108 @@ fn get_max_width(lines_vec: &Vec<&str>, y: usize) -> i32 {
     lines_vec[y].len() as i32 -1
 }
 
+//    A B
+//  N|    |C
+//  M| |ED
+//K|L  |F  
+//J| |HG
+//  I
+fn new_position_on_map_part2(
+    (x, y): (i32, i32), 
+    direction: &char, 
+    lines_vec: &Vec<&str>
+) -> ((i32, i32), char) { // TODO and sign
+    
+    let mut possible_pos: (i32, i32);
+    TODO below there is sth wrong :/
+    let mut possible_dir = *direction;
+    if x >= 50 && x < 100 && y == 0 && *direction == '^' {
+        // A -> J
+        possible_pos = (0,x+100);
+        possible_dir = '>';
+    }
+    else if x >= 100 && x < 150 && y == 0 && *direction == '^' {
+        // B -> I
+        possible_pos = (x-100,199);
+        possible_dir = '^';
+    }
+    else if x == 149 && y >= 0 && y < 50 && *direction == '>'{
+        // C -> F
+        possible_pos = (99,149-y); // TO
+        possible_dir = '<';
+    }
+    else if x >= 100 && x < 150 && y == 49 && *direction == 'v'{
+        // D -> E
+        possible_pos = (99, x - 100);
+        possible_dir = '<';
+    }
+    else if x == 99 && y >= 50 && y < 100 && *direction == '>'{
+        // E -> D
+        possible_pos = (x+50,49);
+        possible_dir = '^';
+    }
+    else if x == 99 && y >= 100 && y < 150 && *direction == '>'{
+        // F -> C
+        possible_pos = (149, 149 - y); //
+        possible_dir = '<';
+    }
+    else if x >= 50 && x < 100 && y == 149 && *direction == 'v'{
+        // G -> H
+        possible_pos = (49, x+100);
+        possible_dir = '<';
+    }
+    else if x == 49 && y >= 150 && y < 200 && *direction == '>'{
+        // H -> G
+        possible_pos = (y-100,149);
+        possible_dir = '^';
+    }
+    else if x >= 0 && x < 50 && y == 199 && *direction == 'v'{
+        // I -> B
+        possible_pos = (x+100,0);
+        possible_dir = 'v';
+    }
+    else if x == 0 && y >= 150 && y < 200 && *direction == '<'{
+        // J -> A
+        possible_pos = (y-100,0);
+        possible_dir = 'v';
+    }
+    else if x == 0 && y >= 100 && y < 150 && *direction == '<'{
+        // K -> N
+        possible_pos = (50,149-y);
+        possible_dir = '>';
+    }
+    else if x >= 0 && x < 50 && y == 100 && *direction == '^'{
+        // L -> M
+        possible_pos = (50,x+50);
+        possible_dir = '>';
+    }
+    else if x == 50 && y >= 50 && y < 100 && *direction == '<'{
+        // M -> L
+        possible_pos = (y-50,100);
+        possible_dir = 'v';
+    }
+    else if x == 50 && y >= 0 && y < 50 && *direction == '<' {
+        // N -> K
+        possible_pos = (0,149-y);
+        possible_dir = '>';
+    }
+    else {
+        // inside
+        possible_pos = new_position((x as i32, y as i32), &direction);
+    }
+    let new_char = get(&lines_vec, possible_pos);
+    if new_char != '.' {
+        // position not changed
+        ((x,y), *direction)
+    }
+    else {
+        return (possible_pos, possible_dir)
+    }
+    //let mut result = (x, y);
+    //let possible_pos = new_position((x as i32, y as i32), &direction);
+    // A
+}
+
 fn new_position_on_map(
     (x, y): (i32, i32), 
     direction: &char, 
@@ -240,14 +342,15 @@ fn solve_1(input: &str) -> i32 {
         let steps = current.parse::<i32>();
         if steps.is_err() {
             let new_direction = change_direction(&current_direction, &(current.as_bytes()[0] as char));
-            println!("Change: {current} Old Dir {current_direction}, new Dir {new_direction}");
+            //println!("Change: {current} Old Dir {current_direction}, new Dir {new_direction}");
             current_direction = new_direction;
         }
         else {
             for _ in 0..steps.unwrap() {
-                let possible_pos = new_position_on_map(position, &current_direction, &lines_vec);
-                println!("OLD P {}x{}; NEW P {}x{}", position.0, position.1, possible_pos.0, possible_pos.1);
-                position = possible_pos;
+                //let possible_pos = new_position_on_map(position, &current_direction, &lines_vec);
+                (position, current_direction)= new_position_on_map_part2(position, &current_direction, &lines_vec);
+                //println!("OLD P {}x{}; NEW P {}x{}", position.0, position.1, possible_pos.0, possible_pos.1);
+                //position = possible_pos;
             }
         }
     }
